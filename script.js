@@ -41,8 +41,8 @@ function resetNoBtn() {
 
   // ✅ Mismo orden seguro: flotante fuera primero, luego estático
   btnNoFloating.classList.add('hidden');
-  btnNoFloating.style.left = '-999px';
-  btnNoFloating.style.top  = '-999px';
+  btnNoFloating.style.left = '-9999px';
+  btnNoFloating.style.top  = '-9999px';
 
   requestAnimationFrame(() => {
     isNoMoved = false;
@@ -79,8 +79,8 @@ function moveNo() {
     // ✅ ORDEN CORRECTO: ocultar flotante PRIMERO, luego mostrar estático
     // Esto evita que aparezcan dos NO al mismo tiempo
     btnNoFloating.classList.add('hidden');
-    btnNoFloating.style.left = '-999px';   // saca el flotante fuera de pantalla
-    btnNoFloating.style.top  = '-999px';   // por si el hidden tiene delay de CSS
+    btnNoFloating.style.left = '-9999px';   // saca el flotante fuera de pantalla
+    btnNoFloating.style.top  = '-9999px';   // por si el hidden tiene delay de CSS
 
     // Pequeño frame de espera para que el browser procese el ocultamiento
     requestAnimationFrame(() => {

@@ -183,13 +183,19 @@ html, body {
 /* ─── Botón NO flotante ─────────────────────────── */
 .no-floating {
   position: fixed;
-  /* 
-   * ✅ SIN transition de posición — queremos que salte instantáneamente
-   * para que sea imposible de atrapar. Solo transition de sombra/hover.
-   */
+  /* Starts completely off-screen — JS moves it when needed */
+  left: -9999px;
+  top: -9999px;
+  /* NO position transition — jumps instantly so it's impossible to catch */
   transition: box-shadow 0.1s, transform 0.1s;
   transform: translate(-50%, -50%);
   z-index: 999;
+  pointer-events: none;   /* disabled until JS removes hidden + sets coords */
+}
+
+/* When active (JS removes .hidden and sets real coords) */
+.no-floating:not(.hidden) {
+  pointer-events: auto;
 }
 
 /* ─── Botón cerrar ──────────────────────────────── */
