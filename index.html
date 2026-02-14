@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>💕 ¿Quieres ser mi San Valentín?</title>
+  <title>14F💕</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -73,13 +73,13 @@
       <span class="corner-heart br">♥</span>
 
       <p class="popup-text">
-        Se que no se puede, pero<br>
+        Se que no se puele, pero<br>
         igual queria dejarte un<br>
-        <span class="red-text">regalo</span> v3 🌱
+        <span class="red-text">regalo</span>
       </p>
 
       <button class="pill-btn red pulse-btn" onclick="handleAbrirRegalo()">
-        Abrir regalo 🎁
+        Abrir Carta 
       </button>
 
       <div class="totoro-wrap small">
@@ -129,12 +129,13 @@
   </div>
 
   <!-- NO button floating (fixed, escaping) -->
-  <button class="pill-btn pink no-floating hidden" id="btn-no-floating" style="left:-9999px;top:-9999px;pointer-events:none;"
-          onmouseenter="moveNo()"
-          ontouchstart="moveNo()"
-          onclick="moveNo()">
+  <button class="pill-btn pink no-floating hidden" id="btn-no-floating" 
+        style="position: fixed; z-index: 9999;"
+        onmouseenter="moveNo()"
+        ontouchstart="moveNo()"
+        onclick="moveNo()">
     NO
-  </button>
+</button>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <script src="script.js"></script>
