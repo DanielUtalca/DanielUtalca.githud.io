@@ -84,3 +84,21 @@ function launchFloatingHearts(count) {
         }, i * 150);
     }
 }
+
+function handleSi() {
+    // 1. Reproducir música
+    const audio = document.getElementById('miMusica');
+    audio.play().catch(error => console.log("El navegador bloqueó el audio inicial:", error));
+
+    // 2. Efecto de confeti
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+    
+    killNoButton(); 
+
+    setTimeout(() => {
+        screenPregunta.classList.add('hidden');
+        screenPopup.classList.remove('hidden');
+    }, 300);
+}
