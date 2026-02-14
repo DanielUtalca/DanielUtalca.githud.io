@@ -24,11 +24,15 @@ let isNoMoved = false;
 function updateBackground() {
   if (!bgLayer) return;
   if (window.innerWidth >= 768) {
-    bgLayer.style.backgroundImage = "url('fondopc.png')";
-    bgLayer.style.backgroundSize  = '380px';
+    // Desktop: fondopc.png en mosaico
+    bgLayer.style.backgroundImage  = "url('fondopc.png')";
+    bgLayer.style.backgroundRepeat = 'repeat';
+    bgLayer.style.backgroundSize   = '380px';
   } else {
-    bgLayer.style.backgroundImage = "url('fondo.png')";
-    bgLayer.style.backgroundSize  = '260px';
+    // Móvil: fondo.png al tamaño natural, sin repetir
+    bgLayer.style.backgroundImage  = "url('fondo.png')";
+    bgLayer.style.backgroundRepeat = 'no-repeat';
+    bgLayer.style.backgroundSize   = 'cover';
   }
 }
 

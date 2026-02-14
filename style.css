@@ -39,20 +39,21 @@ html, body {
   inset: 0;
   z-index: -10;
   background-color: #1e0808;
-  background-repeat: repeat;
-  background-position: center center;
   image-rendering: pixelated;
 
-  /* ── MÓVIL (default): fondo.png ── */
+  /* ── MÓVIL (default): fondo.png al tamaño natural, sin repetir ── */
   background-image: url('fondo.png');
-  background-size: 260px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
 }
 
-/* ── DESKTOP (768px+): fondopc.png ── */
+/* ── DESKTOP (768px+): fondopc.png repetido en mosaico ── */
 @media (min-width: 768px) {
   .bg-layer {
     background-image: url('fondopc.png');
-    background-size: 380px;   /* ajusta para más/menos corazones en PC */
+    background-repeat: repeat;
+    background-size: 380px;
   }
 }
 
