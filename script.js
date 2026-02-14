@@ -1,14 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
    Valentine's Day — script.js
-   Lógica completa: botón NO que huye, confeti, transiciones,
-   corazones flotantes.
+   BUGS CORREGIDOS:
+   ✅ NO flotante se oculta en pantallas 2 y 3
+   ✅ NO estático no reaparece junto al flotante (doble NO)
+   ✅ Al volver de pantalla 3 el estado resetea limpio
+   ✅ visibility:hidden → display:none para evitar espacio fantasma
 ═══════════════════════════════════════════════════════════════ */
 
-// ─── State ────────────────────────────────────────────────────────────────────
-let isNoMoved    = false;   // false = NO está en el flujo normal
-let returnTimer  = null;    // timer para que el NO vuelva a su lugar
+// ─── Estado global ────────────────────────────────────────────
+let isNoMoved   = false;
+let returnTimer = null;
+let currentScreen = 1;   // 1 | 2 | 3
 
-// ─── DOM refs ─────────────────────────────────────────────────────────────────
+// ─── DOM refs ─────────────────────────────────────────────────
 const screenPregunta  = document.getElementById('screen-pregunta');
 const screenPopup     = document.getElementById('screen-popup');
 const screenCarta     = document.getElementById('screen-carta');
@@ -17,116 +21,126 @@ const btnNoFloating   = document.getElementById('btn-no-floating');
 const heartsContainer = document.getElementById('hearts-container');
 
 // ═══════════════════════════════════════════════════════════════
-//  BOTÓN NO — escapa del cursor
+//  HELPERS — pantallas
 // ═══════════════════════════════════════════════════════════════
+function showScreen(el) {
+  el.classList.remove('hidden');
+}
 
-/**
- * Mueve el botón NO a una posición aleatoria de la pantalla.
- * Si aún no había escapado, lo convierte en un botón fixed overlay;
- * si ya estaba floating, simplemente salta a otro punto.
- * Después de 5 segundos sin interacción, vuelve a su lugar original.
- */
+function hideScreen(el) {
+  el.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RESET completo del botón NO
+//  Siempre llamar esto al salir de pantalla 1
+// ═══════════════════════════════════════════════════════════════
+function resetNoBtn() {
+  if (returnTimer) clearTimeout(returnTimer);
+  returnTimer  = null;
+  isNoMoved    = false;
+
+  // Restaura el NO estático
+  btnNoStatic.style.display = '';
+
+  // Oculta y "olvida" la posición del flotante
+  btnNoFloating.classList.add('hidden');
+  btnNoFloating.style.left = '-999px';
+  btnNoFloating.style.top  = '-999px';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BOTÓN NO — huye del cursor
+// ═══════════════════════════════════════════════════════════════
 function moveNo() {
-  const margin = 80;  // px de margen para no salir de los bordes
-  const maxX   = window.innerWidth  - margin;
-  const maxY   = window.innerHeight - margin;
+  // Solo actúa si estamos en pantalla 1
+  if (currentScreen !== 1) return;
 
-  const newX = margin / 2 + Math.random() * maxX;
-  const newY = margin / 2 + Math.random() * maxY;
+  const btnW  = 120;
+  const btnH  = 52;
+  const newX  = btnW / 2 + Math.random() * (window.innerWidth  - btnW);
+  const newY  = btnH / 2 + Math.random() * (window.innerHeight - btnH);
 
-  // Muestra el botón flotante con las coordenadas nuevas
-  btnNoFloating.style.left = newX + 'px';
-  btnNoFloating.style.top  = newY + 'px';
-
+  // Primera huida: oculta el estático con display:none (sin hueco)
   if (!isNoMoved) {
-    // Primera huida: oculta el estático, muestra el flotante
     isNoMoved = true;
-    btnNoStatic.style.visibility = 'hidden'; // mantiene espacio en el flex
+    btnNoStatic.style.display = 'none';
     btnNoFloating.classList.remove('hidden');
   }
 
-  scheduleNoReturn();
-}
+  // Mueve el flotante
+  btnNoFloating.style.left = newX + 'px';
+  btnNoFloating.style.top  = newY + 'px';
 
-/**
- * Programa el retorno automático del botón NO a su posición
- * original (dentro del flex row) después de 5 segundos.
- */
-function scheduleNoReturn() {
+  // Programa retorno automático en 5s
   if (returnTimer) clearTimeout(returnTimer);
   returnTimer = setTimeout(() => {
     isNoMoved = false;
-    btnNoStatic.style.visibility = '';    // vuelve al flujo
-    btnNoFloating.classList.add('hidden');
+    btnNoStatic.style.display = '';        // reaparece en el flex
+    btnNoFloating.classList.add('hidden'); // flotante desaparece
   }, 5000);
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  BOTÓN SÍ — lanza confeti y va al popup
+//  BOTÓN SÍ
 // ═══════════════════════════════════════════════════════════════
 function handleSi() {
-  // Lanza el confeti
   fireConfetti();
 
-  // Transición a pantalla 2
-  setTimeout(() => {
-    showScreen(screenPopup);
-    hideScreen(screenPregunta);
+  // Limpia el NO antes de cambiar pantalla
+  resetNoBtn();
+  currentScreen = 2;
 
-    // Oculta el NO flotante si estaba visible
-    btnNoFloating.classList.add('hidden');
-    if (returnTimer) clearTimeout(returnTimer);
-  }, 200);
+  setTimeout(() => {
+    hideScreen(screenPregunta);
+    showScreen(screenPopup);
+  }, 150);
 }
 
 function fireConfetti() {
+  if (typeof confetti === 'undefined') return;
   const colors  = ['#ff4d6d', '#FFC5D3', '#c9184a', '#ffffff', '#ffd6da'];
-  const options = { colors, shapes: ['square'] };
+  const opts    = { colors, shapes: ['square'] };
 
-  confetti({ ...options, particleCount: 100, spread: 80,  origin: { y: 0.55 } });
+  confetti({ ...opts, particleCount: 100, spread: 80,  origin: { y: 0.55 } });
   setTimeout(() => {
-    confetti({ ...options, particleCount: 60, spread: 110, origin: { x: 0.08, y: 0.6 } });
-    confetti({ ...options, particleCount: 60, spread: 110, origin: { x: 0.92, y: 0.6 } });
+    confetti({ ...opts, particleCount: 60, spread: 110, origin: { x: 0.08, y: 0.6 } });
+    confetti({ ...opts, particleCount: 60, spread: 110, origin: { x: 0.92, y: 0.6 } });
   }, 400);
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  BOTÓN ABRIR REGALO — va a la carta final
+//  BOTÓN ABRIR REGALO
 // ═══════════════════════════════════════════════════════════════
 function handleAbrirRegalo() {
+  currentScreen = 3;
   hideScreen(screenPopup);
   showScreen(screenCarta);
-
-  // Lanza corazones flotantes
   launchFloatingHearts(18);
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  BOTÓN CERRAR — vuelve al principio con fade
+//  BOTÓN CERRAR REGALO — vuelve a pantalla 1
 // ═══════════════════════════════════════════════════════════════
 function handleClose() {
-  // Fade out
-  screenCarta.style.opacity = '0';
-  screenCarta.style.transition = 'opacity 0.5s ease';
+  screenCarta.style.opacity    = '0';
+  screenCarta.style.transition = 'opacity 0.45s ease';
 
   setTimeout(() => {
-    // Limpia corazones flotantes
+    // Limpia hearts flotantes
     heartsContainer.innerHTML = '';
 
-    // Resetea carta
+    // Resetea estilos de carta
     screenCarta.style.opacity    = '';
     screenCarta.style.transition = '';
 
-    // Resetea botón NO
-    isNoMoved = false;
-    btnNoStatic.style.visibility = '';
-    btnNoFloating.classList.add('hidden');
-    if (returnTimer) clearTimeout(returnTimer);
+    // Vuelve a pantalla 1 con estado limpio
+    currentScreen = 1;
+    resetNoBtn();
 
-    // Vuelve a pantalla 1
     hideScreen(screenCarta);
     showScreen(screenPregunta);
-  }, 500);
+  }, 450);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -134,48 +148,26 @@ function handleClose() {
 // ═══════════════════════════════════════════════════════════════
 function launchFloatingHearts(count) {
   const emojis = ['♥', '💕', '💗', '🌸', '✨'];
+  const colors = ['#fff', '#FFC5D3', '#ff758f', '#ffb3c6'];
 
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
       const el = document.createElement('span');
       el.classList.add('floating-heart');
-      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-
-      // Posición horizontal aleatoria
-      el.style.left     = 10 + Math.random() * 80 + '%';
-      el.style.bottom   = '-2rem';
-      el.style.fontSize = 1 + Math.random() * 1.5 + 'rem';
+      el.textContent          = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left           = 5 + Math.random() * 90 + '%';
+      el.style.bottom         = '-2rem';
+      el.style.fontSize       = 1 + Math.random() * 1.5 + 'rem';
+      el.style.color          = colors[Math.floor(Math.random() * colors.length)];
       el.style.animationDuration = 2.5 + Math.random() * 2 + 's';
-      el.style.animationDelay   = '0s';
-
-      // Color aleatorio
-      const colors = ['#fff', '#FFC5D3', '#ff758f', '#ffb3c6', '#e0aaff'];
-      el.style.color = colors[Math.floor(Math.random() * colors.length)];
-
       heartsContainer.appendChild(el);
-
-      // Elimina el elemento después de que termine la animación
       el.addEventListener('animationend', () => el.remove());
-    }, i * 120);
+    }, i * 130);
   }
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  HELPERS — mostrar / ocultar pantallas
-// ═══════════════════════════════════════════════════════════════
-function showScreen(el) {
-  el.classList.remove('hidden');
-  el.classList.add('active');
-}
-
-function hideScreen(el) {
-  el.classList.remove('active');
-  el.classList.add('hidden');
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  ACCESIBILIDAD — Enter / Space en botones nativos ya funciona,
-//  pero aseguramos que el NO flotante también responda al teclado.
+//  TECLADO — NO flotante responde a Enter/Space
 // ═══════════════════════════════════════════════════════════════
 btnNoFloating.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') moveNo();
