@@ -1,104 +1,140 @@
 /* ═══════════════════════════════════════════════════════════════
-   Valentine's Day — script.js (FIX: El botón NO desaparece)
+   Valentine's Day — script.js
+   ✅ fondo.png en móvil / fondopc.png en desktop
+   ✅ Música al presionar SÍ
+   ✅ Botón NO que huye y se elimina correctamente
 ═══════════════════════════════════════════════════════════════ */
 
-let isNoMoved = false;
-const btnNoStatic = document.getElementById('btn-no');
-const btnNoFloating = document.getElementById('btn-no-floating');
+// ─── DOM refs ─────────────────────────────────────────────────
+const btnNoStatic     = document.getElementById('btn-no');
+const btnNoFloating   = document.getElementById('btn-no-floating');
 const heartsContainer = document.getElementById('hearts-container');
-const screenPregunta = document.getElementById('screen-pregunta');
-const screenPopup = document.getElementById('screen-popup');
-const screenCarta = document.getElementById('screen-carta');
+const screenPregunta  = document.getElementById('screen-pregunta');
+const screenPopup     = document.getElementById('screen-popup');
+const screenCarta     = document.getElementById('screen-carta');
+const bgLayer         = document.querySelector('.bg-layer');
 
-// 1. Función para mover el botón y que huya
+// ─── Estado ───────────────────────────────────────────────────
+let isNoMoved = false;
+
+// ═══════════════════════════════════════════════════════════════
+//  FONDO RESPONSIVO — cambia si el usuario rota la pantalla
+//  (CSS ya maneja el caso inicial, JS cubre rotaciones)
+// ═══════════════════════════════════════════════════════════════
+function updateBackground() {
+  if (!bgLayer) return;
+  if (window.innerWidth >= 768) {
+    bgLayer.style.backgroundImage = "url('fondopc.png')";
+    bgLayer.style.backgroundSize  = '380px';
+  } else {
+    bgLayer.style.backgroundImage = "url('fondo.png')";
+    bgLayer.style.backgroundSize  = '260px';
+  }
+}
+
+// Aplica al cargar y en cada cambio de tamaño / rotación
+updateBackground();
+window.addEventListener('resize', updateBackground);
+
+// ═══════════════════════════════════════════════════════════════
+//  BOTÓN NO — huye del cursor
+// ═══════════════════════════════════════════════════════════════
 function moveNo() {
-    if (!isNoMoved) {
-        isNoMoved = true;
-        btnNoStatic.style.opacity = '0'; 
-        btnNoStatic.style.pointerEvents = 'none'; 
-        btnNoFloating.classList.remove('hidden');
-        btnNoFloating.style.display = 'block';
-    }
+  if (!isNoMoved) {
+    isNoMoved = true;
+    // Oculta el estático sin dejar hueco
+    btnNoStatic.style.opacity      = '0';
+    btnNoStatic.style.pointerEvents = 'none';
+    btnNoStatic.style.display      = 'none';
+    // Muestra el flotante
+    btnNoFloating.classList.remove('hidden');
+    btnNoFloating.style.display = 'block';
+  }
 
-    const padding = 20;
-    const maxX = window.innerWidth - btnNoFloating.offsetWidth - padding;
-    const maxY = window.innerHeight - btnNoFloating.offsetHeight - padding;
+  const padding = 20;
+  const maxX = window.innerWidth  - (btnNoFloating.offsetWidth  || 120) - padding;
+  const maxY = window.innerHeight - (btnNoFloating.offsetHeight || 52)  - padding;
 
-    const newX = Math.max(padding, Math.random() * maxX);
-    const newY = Math.max(padding, Math.random() * maxY);
-
-    btnNoFloating.style.position = 'fixed';
-    btnNoFloating.style.left = newX + 'px';
-    btnNoFloating.style.top = newY + 'px';
-    btnNoFloating.style.zIndex = '9999';
-    btnNoFloating.style.pointerEvents = 'auto';
+  btnNoFloating.style.left = Math.max(padding, Math.random() * maxX) + 'px';
+  btnNoFloating.style.top  = Math.max(padding, Math.random() * maxY) + 'px';
 }
 
-// 2. Función para ELIMINAR el botón NO de la vista
+// Elimina AMBAS versiones del botón NO de la vista
 function killNoButton() {
-    btnNoStatic.style.display = 'none';
-    btnNoFloating.style.display = 'none';
-    btnNoFloating.classList.add('hidden');
-    isNoMoved = false;
+  btnNoStatic.style.display       = 'none';
+  btnNoStatic.style.opacity       = '0';
+  btnNoStatic.style.pointerEvents = 'none';
+  btnNoFloating.style.display     = 'none';
+  btnNoFloating.style.left        = '-9999px';
+  btnNoFloating.style.top         = '-9999px';
+  btnNoFloating.classList.add('hidden');
+  isNoMoved = false;
 }
 
-// 3. BOTÓN SÍ
+// ═══════════════════════════════════════════════════════════════
+//  BOTÓN SÍ — confeti + música + pantalla 2
+// ═══════════════════════════════════════════════════════════════
 function handleSi() {
-    if (typeof confetti !== 'undefined') {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    }
-    
-    killNoButton(); // <--- AQUÍ LO MATAMOS PARA QUE NO SE VEA MÁS
+  // Inicia la música
+  const audio = document.getElementById('miMusica');
+  if (audio) {
+    audio.play().catch(e => console.log('Audio bloqueado por el navegador:', e));
+  }
 
+  // Confeti pixelado
+  if (typeof confetti !== 'undefined') {
+    const colors = ['#ff4d6d', '#FFC5D3', '#c9184a', '#ffffff', '#ffd6da'];
+    const opts   = { colors, shapes: ['square'] };
+    confetti({ ...opts, particleCount: 100, spread: 80,  origin: { y: 0.55 } });
     setTimeout(() => {
-        screenPregunta.classList.add('hidden');
-        screenPopup.classList.remove('hidden');
-    }, 300);
+      confetti({ ...opts, particleCount: 60, spread: 110, origin: { x: 0.08, y: 0.6 } });
+      confetti({ ...opts, particleCount: 60, spread: 110, origin: { x: 0.92, y: 0.6 } });
+    }, 400);
+  }
+
+  // Mata el botón NO y va a pantalla 2
+  killNoButton();
+  setTimeout(() => {
+    screenPregunta.classList.add('hidden');
+    screenPopup.classList.remove('hidden');
+  }, 300);
 }
 
-// 4. ABRIR REGALO
+// ═══════════════════════════════════════════════════════════════
+//  BOTÓN ABRIR CARTA
+// ═══════════════════════════════════════════════════════════════
 function handleAbrirRegalo() {
-    killNoButton(); // Refuerzo por si acaso
-    screenPopup.classList.add('hidden');
-    screenCarta.classList.remove('hidden');
-    launchFloatingHearts(20);
+  killNoButton();
+  screenPopup.classList.add('hidden');
+  screenCarta.classList.remove('hidden');
+  launchFloatingHearts(20);
 }
 
-// 5. CERRAR REGALO (Reset total)
+// ═══════════════════════════════════════════════════════════════
+//  BOTÓN CERRAR — recarga la página (reset total limpio)
+// ═══════════════════════════════════════════════════════════════
 function handleClose() {
-    location.reload(); 
+  location.reload();
 }
 
-// Corazones flotantes
+// ═══════════════════════════════════════════════════════════════
+//  CORAZONES FLOTANTES
+// ═══════════════════════════════════════════════════════════════
 function launchFloatingHearts(count) {
-    const emojis = ['♥', '💕', '💗'];
-    for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-            const heart = document.createElement('span');
-            heart.classList.add('floating-heart');
-            heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
-            heartsContainer.appendChild(heart);
-            setTimeout(() => heart.remove(), 3000);
-        }, i * 150);
-    }
-}
+  const emojis = ['♥', '💕', '💗', '🌸', '✨'];
+  const colors = ['#fff', '#FFC5D3', '#ff758f', '#ffb3c6'];
 
-function handleSi() {
-    // 1. Reproducir música
-    const audio = document.getElementById('miMusica');
-    audio.play().catch(error => console.log("El navegador bloqueó el audio inicial:", error));
-
-    // 2. Efecto de confeti
-    if (typeof confetti !== 'undefined') {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    }
-    
-    killNoButton(); 
-
+  for (let i = 0; i < count; i++) {
     setTimeout(() => {
-        screenPregunta.classList.add('hidden');
-        screenPopup.classList.remove('hidden');
-    }, 300);
+      const el = document.createElement('span');
+      el.classList.add('floating-heart');
+      el.textContent          = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left           = 5 + Math.random() * 90 + 'vw';
+      el.style.fontSize       = 20 + Math.random() * 20 + 'px';
+      el.style.color          = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = 2.5 + Math.random() * 2 + 's';
+      heartsContainer.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 150);
+  }
 }
