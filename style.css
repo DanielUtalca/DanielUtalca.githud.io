@@ -1,0 +1,496 @@
+/* ═══════════════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════════════ */
+:root {
+  --pink:      #FFC5D3;
+  --red:       #c41e1e;
+  --red-dark:  #7a1a1a;
+  --card-bg:   #fbedf0;
+  --cream:     #fef8ee;
+  --stripe:    #e8294a;
+  --text:      #1a0808;
+  --font:      'Quicksand', sans-serif;
+  --shadow-neo: 4px 4px 0px 0px rgba(0,0,0,1);
+  --shadow-neo-lg: 6px 6px 0px 0px rgba(0,0,0,1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: transparent;          /* let bg-layer show through */
+  font-family: var(--font);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════
+   BACKGROUND — tiled pixel-art hearts
+═══════════════════════════════════════════════════ */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  background-color: #1e0808;         /* fallback */
+  background-image: url('fondo.png');
+  background-repeat: repeat;
+  background-size: 320px;            /* ← tune to zoom in/out */
+  background-position: center center;
+  image-rendering: pixelated;
+}
+
+.bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════════════ */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.screen.hidden { display: none; }
+.screen.active  { display: flex; }
+
+/* ═══════════════════════════════════════════════════
+   CARD — shared base
+═══════════════════════════════════════════════════ */
+.card {
+  background: rgba(251, 237, 240, 0.97);
+  border: 4px solid #000;
+  border-radius: 38px;
+  box-shadow: var(--shadow-neo-lg);
+  width: 100%;
+  max-width: 360px;
+  padding: 2.2rem 1.8rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 1 — Pregunta
+═══════════════════════════════════════════════════ */
+.question-text {
+  font-size: clamp(1.55rem, 6vw, 1.9rem);
+  font-weight: 900;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+
+/* Button row — column on mobile, row on desktop */
+.btn-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;                         /* 32px vertical gap on mobile */
+  margin-bottom: 0.25rem;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .btn-row {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+}
+
+/* Totoro wrapper */
+.totoro-wrap {
+  width: 148px;
+  height: 148px;
+  margin-top: 2rem;
+  margin-bottom: -4px;
+  flex-shrink: 0;
+}
+
+.totoro-wrap.small {
+  width: 86px;
+  height: 86px;
+  margin-top: 1.2rem;
+  margin-bottom: 0;
+}
+
+.totoro-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════
+   PILL BUTTONS — neubrutalist pastilla style
+═══════════════════════════════════════════════════ */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 3px solid #000;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 1.15rem;
+  padding: 0.75rem 2.5rem;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: var(--shadow-neo);
+  transition: box-shadow 0.1s, transform 0.1s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.pill-btn:hover {
+  box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+  transform: translateY(-2px);
+}
+
+.pill-btn:active {
+  box-shadow: none;
+  transform: translate(3px, 3px);
+}
+
+/* Variants */
+.pill-btn.pink {
+  background: var(--pink);
+  color: #000;
+}
+
+.pill-btn.red {
+  background: var(--red);
+  color: #fff;
+  padding: 0.9rem 2.8rem;
+  font-size: 1.2rem;
+}
+
+.pill-btn.red:hover { background: #a81818; }
+
+/* Close button */
+.close-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--red);
+  color: #fff;
+  border: 3px solid #000;
+  border-radius: 9999px;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
+  transition: box-shadow 0.1s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.close-btn:hover {
+  box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+  transform: translateY(-2px);
+}
+
+.close-btn:active {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+/* NO button — floating fixed */
+.no-floating {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  transition: top 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 2 — Popup
+═══════════════════════════════════════════════════ */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.popup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.50);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Ghost card behind modal */
+.card.ghost {
+  position: absolute;
+  opacity: 0.25;
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ghost-line {
+  height: 1.5rem;
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.ghost-line.wide   { width: 75%; }
+.ghost-line.narrow { width: 55%; margin-bottom: 1.5rem; }
+
+.ghost-btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.ghost-btn {
+  width: 6rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background: var(--pink);
+  border: 3px solid #000;
+  opacity: 0.5;
+}
+
+.ghost-totoro {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  margin-bottom: 1rem;
+}
+
+/* Modal card */
+.modal-card {
+  position: relative;
+  z-index: 10;
+  background: var(--card-bg);
+  border: 4px solid #000;
+  border-radius: 32px;
+  box-shadow: var(--shadow-neo-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 310px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.corner-heart {
+  position: absolute;
+  color: var(--red);
+  font-size: 0.85rem;
+  line-height: 1;
+  pointer-events: none;
+}
+.corner-heart.tl { top: 0.75rem; left: 1rem; }
+.corner-heart.tr { top: 0.75rem; right: 1rem; }
+.corner-heart.bl { bottom: 0.75rem; left: 1rem; }
+.corner-heart.br { bottom: 0.75rem; right: 1rem; }
+
+.popup-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.red-text {
+  color: var(--red);
+  font-weight: 900;
+}
+
+/* Pulse animation on "Abrir regalo" */
+.pulse-btn {
+  animation: pulseLove 1.9s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 3 — Carta final
+═══════════════════════════════════════════════════ */
+.carta-screen {
+  padding: 3.5rem 1rem 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  z-index: 60;
+}
+
+/* Airmail envelope outer (diagonal stripe) */
+.envelope-outer {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 26px;
+  border: 4px solid #000;
+  box-shadow: var(--shadow-neo-lg);
+  padding: 10px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--stripe)  0px,
+    var(--stripe)  12px,
+    #ffffff        12px,
+    #ffffff        24px
+  );
+  animation: slideUp 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Cream paper inside */
+.envelope-inner {
+  background: var(--cream);
+  border-radius: 17px;
+  padding: 2rem 1.8rem;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.letter-from {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.letter-divider {
+  height: 2px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 2px;
+  margin: 0.5rem 0 1rem;
+}
+
+.letter-body {
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.85;
+  text-align: justify;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.letter-to {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--red);
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+/* Floating hearts below letter */
+.letter-hearts {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 1.4rem;
+}
+
+.lheart {
+  color: #fff;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.55));
+  animation: floatHeart 1.5s ease-in-out infinite alternate;
+}
+
+.lheart:nth-child(2) { animation-delay: 0.2s; }
+.lheart:nth-child(3) { animation-delay: 0.4s; }
+
+/* ═══════════════════════════════════════════════════
+   FLOATING HEARTS (confetti-style, JS-generated)
+═══════════════════════════════════════════════════ */
+#hearts-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.floating-heart {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: riseHeart 3s ease-out forwards;
+  opacity: 0;
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+═══════════════════════════════════════════════════ */
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.6) translateY(40px); }
+  100% { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translateY(60px) scale(0.88); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes pulseLove {
+  0%, 100% { transform: scale(1);    box-shadow: var(--shadow-neo); }
+  50%       { transform: scale(1.06); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1), 0 0 22px 4px rgba(196,30,30,0.45); }
+}
+
+@keyframes floatHeart {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes riseHeart {
+  0%   { opacity: 1;   transform: translateY(0)     rotate(0deg);   }
+  80%  { opacity: 0.8; transform: translateY(-80vh) rotate(20deg);  }
+  100% { opacity: 0;   transform: translateY(-100vh) rotate(-10deg); }
+}
+
+/* Entry animation for screen 1 card */
+.card-pregunta {
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE TWEAKS
+═══════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .card { padding: 1.8rem 1.4rem 0; }
+  .question-text { font-size: 1.45rem; }
+  .envelope-inner { padding: 1.5rem 1.2rem; }
+  .letter-body { font-size: 0.9rem; }
+}
+
+@media (min-height: 800px) {
+  .totoro-wrap { width: 165px; height: 165px; }
+}

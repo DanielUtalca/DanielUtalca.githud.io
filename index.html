@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>💕 ¿Quieres ser mi San Valentín?</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FONDO — pixel-art hearts, tiled
+  ════════════════════════════════════════════════════════════ -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="bg-vignette"></div>
+  </div>
+
+  <!-- Corazones flotantes (generados por JS) -->
+  <div id="hearts-container" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN 1 — La Pregunta
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-pregunta" class="screen active">
+    <div class="card card-pregunta">
+
+      <h1 class="question-text">¿Quieres ser<br>mi san valentín?</h1>
+
+      <div class="btn-row" id="btn-row">
+        <button class="pill-btn pink" id="btn-si" onclick="handleSi()">
+          SÍ ♥
+        </button>
+        <button class="pill-btn pink" id="btn-no" 
+                onmouseenter="moveNo()" 
+                ontouchstart="moveNo()"
+                onclick="moveNo()">
+          NO
+        </button>
+      </div>
+
+      <div class="totoro-wrap">
+        <img src="totoro.png" alt="Totoro kawaii" class="totoro-img" />
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN 2 — El Popup
+  ════════════════════════════════════════════════════════════ -->
+  <div id="screen-popup" class="screen popup-overlay hidden">
+    <div class="popup-backdrop"></div>
+
+    <!-- Ghost of screen 1 -->
+    <div class="card card-pregunta ghost" aria-hidden="true">
+      <div class="ghost-line wide"></div>
+      <div class="ghost-line narrow"></div>
+      <div class="ghost-btn-row">
+        <div class="ghost-btn"></div>
+        <div class="ghost-btn"></div>
+      </div>
+      <div class="ghost-totoro"></div>
+    </div>
+
+    <!-- Modal card -->
+    <div class="modal-card" id="modal-card">
+      <span class="corner-heart tl">♥</span>
+      <span class="corner-heart tr">♥</span>
+      <span class="corner-heart bl">♥</span>
+      <span class="corner-heart br">♥</span>
+
+      <p class="popup-text">
+        Se que no se puede, pero<br>
+        igual queria dejarte un<br>
+        <span class="red-text">regalo</span> v3 🌱
+      </p>
+
+      <button class="pill-btn red pulse-btn" onclick="handleAbrirRegalo()">
+        Abrir regalo 🎁
+      </button>
+
+      <div class="totoro-wrap small">
+        <img src="totoro.png" alt="Totoro" class="totoro-img" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN 3 — La Carta Final
+  ════════════════════════════════════════════════════════════ -->
+  <div id="screen-carta" class="screen hidden carta-screen">
+
+    <!-- Close button -->
+    <button class="close-btn" onclick="handleClose()">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+        <path d="M1 1l8 8M9 1L1 9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Cerrar regalo
+    </button>
+
+    <!-- Airmail envelope -->
+    <div class="envelope-outer">
+      <div class="envelope-inner">
+
+        <p class="letter-from">De: Daniel</p>
+        <div class="letter-divider"></div>
+
+        <p class="letter-body">
+          Se que tal vez es mucho, ya que hablamos un poco del tema, pero
+          igual te quería hacer algo bonito, para decirte que te extraño
+        </p>
+
+        <div class="letter-divider"></div>
+        <p class="letter-to">Para: Antonia &lt;3</p>
+
+      </div>
+    </div>
+
+    <!-- Floating hearts below letter -->
+    <div class="letter-hearts">
+      <span class="lheart">♥</span>
+      <span class="lheart">♥</span>
+      <span class="lheart">♥</span>
+    </div>
+
+  </div>
+
+  <!-- NO button floating (fixed, escaping) -->
+  <button class="pill-btn pink no-floating hidden" id="btn-no-floating"
+          onmouseenter="moveNo()"
+          ontouchstart="moveNo()"
+          onclick="moveNo()">
+    NO
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
