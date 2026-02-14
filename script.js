@@ -37,16 +37,17 @@ function hideScreen(el) {
 // ═══════════════════════════════════════════════════════════════
 function resetNoBtn() {
   if (returnTimer) clearTimeout(returnTimer);
-  returnTimer  = null;
-  isNoMoved    = false;
+  returnTimer = null;
 
-  // Restaura el NO estático
-  btnNoStatic.style.display = '';
-
-  // Oculta y "olvida" la posición del flotante
+  // ✅ Mismo orden seguro: flotante fuera primero, luego estático
   btnNoFloating.classList.add('hidden');
   btnNoFloating.style.left = '-999px';
   btnNoFloating.style.top  = '-999px';
+
+  requestAnimationFrame(() => {
+    isNoMoved = false;
+    btnNoStatic.style.display = '';
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -75,9 +76,17 @@ function moveNo() {
   // Programa retorno automático en 5s
   if (returnTimer) clearTimeout(returnTimer);
   returnTimer = setTimeout(() => {
-    isNoMoved = false;
-    btnNoStatic.style.display = '';        // reaparece en el flex
-    btnNoFloating.classList.add('hidden'); // flotante desaparece
+    // ✅ ORDEN CORRECTO: ocultar flotante PRIMERO, luego mostrar estático
+    // Esto evita que aparezcan dos NO al mismo tiempo
+    btnNoFloating.classList.add('hidden');
+    btnNoFloating.style.left = '-999px';   // saca el flotante fuera de pantalla
+    btnNoFloating.style.top  = '-999px';   // por si el hidden tiene delay de CSS
+
+    // Pequeño frame de espera para que el browser procese el ocultamiento
+    requestAnimationFrame(() => {
+      isNoMoved = false;
+      btnNoStatic.style.display = '';      // ahora sí reaparece el estático
+    });
   }, 5000);
 }
 
